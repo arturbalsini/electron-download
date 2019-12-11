@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Bootstrap 4 Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css" />
+</head>
+<style>
+    .progress-number {
+        position: absolute;
+        left: 40%;
+        right: 40%;
+        color: black;
+        font-weight: bold;
+    }
+</style>
+<body>
+<div class="container-fluid">
+    <div class="jumbotron" style="text-align: center">
+        <h1>Gerenciador de Downloads</h1>
+    </div>
+    <div id="infoDownload" style="min-height: 200px">
+    </div>
+    <div id="alert" class="alert alert-success alert-dismissible fade show" style="display:none;">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <strong id="msgAlertTitulo">Success!</strong><br> <span id="msgAlertCorpo">Success!</span>
+    </div>
+</div>
+</body>
+</html>
+<script>let $ = require('jquery');</script>
+<script>require('popper.js');</script>
+<script>require('bootstrap');</script>
+<script>
+    let urls = [
+        "https://download.microsoft.com/download/8/b/4/8b4addd8-e957-4dea-bdb8-c4e00af5b94b/NDP1.1sp1-KB867460-X86.exe",
+        "https://download.microsoft.com/download/8/7/D/87D36A01-1266-4FD3-924C-1F1F958E2233/Office2010DevRefs.exe",
+        "https://download.microsoft.com/download/8/b/2/8b2347d9-9f9f-410b-8436-616f89c81902/WindowsServer2003.WindowsXP-KB914961-SP2-x64-ENU.exe",
+        "https://download.microsoft.com/download/0/A/F/0AFB5316-3062-494A-AB78-7FB0D4461357/windows6.1-KB976932-IA64.exe",
+        "https://download.microsoft.com/download/E/A/B/EABF1E75-54F0-42BB-B0EE-58E837B7A17F/SQLServer2012SP4-KB4018073-x64-ENU.exe"
+    ]
+
+    downloadTodos(urls, 0)
+
+    function downloadTodos(urls, count) {
+        if(urls[count] != undefined) {
+            require("electron").remote.require("electron-download-manager").download({
+                    url: urls[count],
+                    onProgress: function onProgress(progress) {
+                        let html = `
+                    <hr>
+                        <div class="row">
+                            <div class="col-12" style="text-align: center"><div></div></div>
+                        <div class="col-6"><b>Total: </b> ${progress.total}</div>
+                        <div class="col-6" style="text-align: right;"><b>Falta: </b> ${progress.remaining}</div>
+                        <div class="col-12">
+                            <div class="progress">
+                            <div class="progress-bar" style="width:${progress.progress.toFixed(2)}%"><span class="progress-number">${progress.progress.toFixed(2)} %</span></div>
+                            </div>
+                            </div>
+                            <div class="col-6"><b>Baixado: </b> ${progress.downloaded}</div>
+                        <div class="col-6" style="text-align: right;"><b>Velocidade: </b> ${progress.speed}</div>
+                        </div>
+                    <hr>
+                    `
+                        $("#infoDownload").html(html)
+                    }
+                },
+                function (error, info) {
+                    if (error) {
+                        console.log(error);
+                        return;
+                    }
+
+                    $("#msgAlertTitulo").text('Sucesso!.')
+                    $("#msgAlertCorpo").text(`Download foi finalizado.`)
+                    $("#alert").slideDown( "slow" )
+                    setTimeout(function(){ $("#alert").hide() }, 2000);
+                    downloadTodos(urls, ++count)
+                });
+        }
+        else{
+            $("#msgAlertTitulo").text('Todos os downloads foram finalizados.')
+            $("#msgAlertCorpo").text('Para testar novamente, delete-os ou altere os links')
+            $("#alert").slideDown( "slow" )
+        }
+    }
+</script>
