@@ -12,7 +12,7 @@
     "bootstrap": "^4.4.1",
     "electron-dl": "^2.0.0",
     "electron-download-manager": "^2.1.2",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "popper.js": "^1.16.0",
     "request": "^2.88.0"
   }
